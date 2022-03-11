@@ -1,6 +1,8 @@
 package com.example.dalgona.data.database
 
 import androidx.room.TypeConverter
+import com.example.dalgona.data.network.models.FoodRecipesResponse
+import com.example.dalgona.data.network.models.Result
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 

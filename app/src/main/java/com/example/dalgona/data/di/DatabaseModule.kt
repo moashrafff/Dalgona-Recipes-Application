@@ -1,4 +1,4 @@
-package com.srb.beverages.data.di
+package com.example.dalgona.data.di
 
 import android.content.Context
 import androidx.room.Room

@@ -1,4 +1,4 @@
-package com.srb.beverages.utils
+package com.example.dalgona.utils
 
 import androidx.recyclerview.widget.DiffUtil
 

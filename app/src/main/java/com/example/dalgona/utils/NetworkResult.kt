@@ -1,4 +1,4 @@
-package com.srb.beverages.utils
+package com.example.dalgona.utils
 
 sealed class NetworkResult<T>(
     val data : T? = null,

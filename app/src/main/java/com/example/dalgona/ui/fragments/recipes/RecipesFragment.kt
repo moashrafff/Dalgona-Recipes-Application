@@ -1,60 +1,221 @@
 package com.example.dalgona.ui.fragments.recipes
 
+import android.os.Build
 import android.os.Bundle
+import android.view.*
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.dalgona.R
+import com.example.dalgona.adapters.RecipesAdapter
+import com.example.dalgona.databinding.FragmentRecipesBinding
+import com.example.dalgona.utils.NetworkListener
+import com.example.dalgona.utils.NetworkResult
+import com.example.dalgona.utils.observeOnce
+import com.example.dalgona.viewmodels.MainViewModel
+import com.example.dalgona.viewmodels.RecipesViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+@AndroidEntryPoint
+class RecipesFragment : Fragment(), SearchView.OnQueryTextListener  {
 
-/**
- * A simple [Fragment] subclass.
- * Use the [RecipesFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class RecipesFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private lateinit var _binding: FragmentRecipesBinding
+    private val binding get() = _binding
+    private val mAdapter by lazy { RecipesAdapter() }
+    private val mainViewModel: MainViewModel by viewModels()
+    private val recipesViewModel: RecipesViewModel by viewModels()
+    private val args by navArgs<RecipesFragmentArgs>()
+    private lateinit var networkListener: NetworkListener
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
 
+
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_recipes, container, false)
+        _binding = FragmentRecipesBinding.inflate(layoutInflater)
+
+//necessary for data binding
+        binding.lifecycleOwner = this
+        binding.mainViewModel = mainViewModel
+
+
+        //setting up the adapter
+        binding.shimmerRv.adapter = mAdapter
+
+
+        //setting up the searchBar
+        setHasOptionsMenu(true)
+
+
+        //network listener class
+        recipesViewModel.readBackOnline.observe(viewLifecycleOwner, {
+            recipesViewModel.backOnline = it
+        })
+
+        lifecycleScope.launchWhenCreated {
+            networkListener = NetworkListener()
+            networkListener.checkNetworkAvailability(requireContext()).collect {
+                    status ->
+                recipesViewModel.networkStatus = status
+                recipesViewModel.showNetworkStatus()
+                readDatabase()
+            }
+        }
+
+
+        //to hide the fab on scroll
+        binding.shimmerRv.setOnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+            Timber.i(v.toString())
+            Timber.i(scrollX.toString())
+            Timber.i(scrollY.toString())
+            Timber.i(oldScrollX.toString())
+            Timber.i(oldScrollY.toString())
+
+            if (oldScrollY < 0) {
+                binding.recipesFab.hide()
+            } else {
+                binding.recipesFab.show()
+            }
+        }
+
+        binding.recipesFab.setOnClickListener {
+            if (recipesViewModel.networkStatus) {
+                val directions =
+                    RecipesFragmentDirections.actionRecipesFragmentToRecipesBottomSheet()
+                findNavController().navigate(directions)
+            } else {
+                recipesViewModel.showNetworkStatus()
+            }
+        }
+
+        return binding.root
+    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        showShimmerEffect()
+
+        readDatabase()
+
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment RecipesFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            RecipesFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+
+        inflater.inflate(R.menu.recipes_menu,menu)
+
+
+        val search = menu.findItem(R.id.menu_search)
+        val searchView = search.actionView as? SearchView
+        searchView?.isSubmitButtonEnabled = true
+        searchView?.setOnQueryTextListener(this)
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        if(query != null){
+            searchApiData(query)
+        }
+        return true
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        return true
+    }
+
+    private fun readDatabase() {
+        lifecycleScope.launch {
+            mainViewModel.readRecipes.observeOnce(viewLifecycleOwner, { database ->
+                if (database.isNotEmpty() && !args.backFromBottomSheet) {
+                    Timber.i("readDatabase called!")
+                    mAdapter.setData(database[0].foodRecipe)
+                    hideShimmerEffect()
+                } else {
+                    requestApiData()
+                }
+            })
+        }
+    }
+
+    private fun requestApiData() {
+
+        Timber.i("api call")
+        mainViewModel.getRecipes(recipesViewModel.applyQueries())
+
+        mainViewModel.apiRecipes.observe(viewLifecycleOwner, { response ->
+            when (response) {
+                is NetworkResult.Success -> {
+                    hideShimmerEffect()
+                    response.data?.let { mAdapter.setData(it) }
+                }
+                is NetworkResult.Error -> {
+                    hideShimmerEffect()
+                    loadDataFromCache()
+                    Toast.makeText(
+                        requireContext(),
+                        response.message.toString(),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                is NetworkResult.Loading -> {
+                    showShimmerEffect()
                 }
             }
+        })
     }
+
+
+    private fun searchApiData(searchQuery : String){
+        showShimmerEffect()
+        mainViewModel.searchRecipes(recipesViewModel.applySearchQuery(searchQuery))
+        mainViewModel.searchRecipes.observe(viewLifecycleOwner, { response ->
+            when (response) {
+                is NetworkResult.Success -> {
+                    hideShimmerEffect()
+                    val foodRecipe = response.data
+                    foodRecipe?.let { mAdapter.setData(it) }
+                }
+                is NetworkResult.Error -> {
+                    hideShimmerEffect()
+                    loadDataFromCache()
+                    Toast.makeText(
+                        requireContext(),
+                        response.message.toString(),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                is NetworkResult.Loading -> {
+                    showShimmerEffect()
+                }
+            }
+        })
+    }
+
+    private fun loadDataFromCache() {
+        lifecycleScope.launch {
+            mainViewModel.readRecipes.observe(viewLifecycleOwner, { database ->
+                if (database.isNotEmpty()) {
+                    mAdapter.setData(database[0].foodRecipe)
+                }
+            })
+        }
+    }
+
+    private fun showShimmerEffect() {
+        binding.shimmerRv.showShimmer()
+    }
+
+    private fun hideShimmerEffect() {
+        binding.shimmerRv.hideShimmer()
+    }
+
+
 }

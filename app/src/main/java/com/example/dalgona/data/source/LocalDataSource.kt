@@ -1,9 +1,9 @@
-package com.srb.beverages.data.source
+package com.example.dalgona.data.source
 
 import com.example.dalgona.data.database.RecipesDao
-import com.srb.beverages.data.database.entities.FavoritesEntity
-import com.srb.beverages.data.database.entities.FoodJokeEntity
-import com.srb.beverages.data.database.entities.RecipesEntity
+import com.example.dalgona.data.database.entities.FavoritesEntity
+import com.example.dalgona.data.database.entities.FoodJokeEntity
+import com.example.dalgona.data.database.entities.RecipesEntity
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

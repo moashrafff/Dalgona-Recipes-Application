@@ -1,8 +1,8 @@
-package com.srb.beverages.data.source
+package com.example.dalgona.data.source
 
-import com.srb.beverages.data.network.models.FoodJokeResponse
-import com.srb.beverages.data.network.models.FoodRecipesResponse
-import com.srb.beverages.data.network.FoodRecipesApi
+import com.example.dalgona.data.network.models.FoodJokeResponse
+import com.example.dalgona.data.network.models.FoodRecipesResponse
+import com.example.dalgona.data.network.FoodRecipesApi
 import retrofit2.Response
 import javax.inject.Inject
 

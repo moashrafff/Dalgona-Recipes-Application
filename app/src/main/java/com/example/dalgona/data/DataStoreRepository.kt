@@ -1,4 +1,4 @@
-package com.srb.beverages.data
+package com.example.dalgona.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore

@@ -1,7 +1,7 @@
-package com.srb.beverages.data.di
+package com.example.dalgona.data.di
 
-import com.srb.beverages.data.network.FoodRecipesApi
-import com.srb.beverages.utils.Constants.BASE_URL
+import com.example.dalgona.data.network.FoodRecipesApi
+import com.example.dalgona.utils.Constants.BASE_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -1,7 +1,7 @@
-package com.srb.beverages.data
+package com.example.dalgona.data
 
-import com.srb.beverages.data.source.LocalDataSource
-import com.srb.beverages.data.source.RemoteDataSource
+import com.example.dalgona.data.source.LocalDataSource
+import com.example.dalgona.data.source.RemoteDataSource
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import javax.inject.Inject
 

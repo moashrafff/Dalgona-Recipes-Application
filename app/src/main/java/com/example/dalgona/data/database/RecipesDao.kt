@@ -1,9 +1,9 @@
 package com.example.dalgona.data.database
 
 import androidx.room.*
-import com.srb.beverages.data.database.entities.FavoritesEntity
-import com.srb.beverages.data.database.entities.FoodJokeEntity
-import com.srb.beverages.data.database.entities.RecipesEntity
+import com.example.dalgona.data.database.entities.FavoritesEntity
+import com.example.dalgona.data.database.entities.FoodJokeEntity
+import com.example.dalgona.data.database.entities.RecipesEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -32,4 +32,5 @@ interface RecipesDao {
 
     @Query("DELETE FROM favorite_recipes_table")
     suspend fun deleteAllFavoriteRecipes()
+
 }

@@ -1,9 +1,10 @@
-package com.srb.beverages.data.database.entities
+package com.example.dalgona.data.database.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.dalgona.data.network.models.FoodRecipesResponse
-import com.srb.beverages.utils.Constants.RECIPES_TABLE
+import com.example.dalgona.utils.Constants.RECIPES_TABLE
+
 
 @Entity(tableName = RECIPES_TABLE)
 data class RecipesEntity(

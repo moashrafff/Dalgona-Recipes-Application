@@ -1,4 +1,4 @@
-package com.srb.beverages.utils.timber
+package com.example.dalgona.utils.timber
 
 import timber.log.Timber
 

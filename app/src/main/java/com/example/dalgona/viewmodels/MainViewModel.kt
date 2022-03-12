@@ -1,4 +1,4 @@
-package com.srb.beverages.viewmodels
+package com.example.dalgona.viewmodels
 
 import android.app.Application
 import android.content.Context
@@ -6,13 +6,13 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
 import androidx.lifecycle.*
+import com.example.dalgona.data.database.entities.RecipesEntity
+import com.example.dalgona.data.Repository
+import com.example.dalgona.data.database.entities.FavoritesEntity
+import com.example.dalgona.data.database.entities.FoodJokeEntity
 import com.example.dalgona.data.network.models.FoodJokeResponse
 import com.example.dalgona.data.network.models.FoodRecipesResponse
-import com.srb.beverages.data.database.entities.RecipesEntity
-import com.srb.beverages.data.Repository
-import com.srb.beverages.data.database.entities.FavoritesEntity
-import com.srb.beverages.data.database.entities.FoodJokeEntity
-import com.srb.beverages.utils.NetworkResult
+import com.example.dalgona.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

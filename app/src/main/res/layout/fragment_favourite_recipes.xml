@@ -7,11 +7,11 @@
 
         <variable
             name="mainViewModel"
-            type="com.srb.beverages.viewmodels.MainViewModel" />
+            type="com.example.dalgona.viewmodels.MainViewModel" />
 
         <variable
-            name="mAdapter"ِِ
-        type="com.srb.beverages.adapters.FavoriteRecipesAdapter" />
+            name="mAdapter"
+            type="com.example.dalgona.adapters.FavoriteRecipesAdapter" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

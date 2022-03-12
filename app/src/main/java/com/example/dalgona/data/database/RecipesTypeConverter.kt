@@ -1,12 +1,13 @@
 package com.example.dalgona.data.database
 
 import androidx.room.TypeConverter
-import com.example.dalgona.data.network.models.FoodRecipesResponse
-import com.example.dalgona.data.network.models.Result
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.example.dalgona.data.network.models.FoodRecipesResponse
+import com.example.dalgona.data.network.models.Result
 
 class RecipesTypeConverter {
+
     private var gson = Gson()
 
     @TypeConverter
@@ -30,4 +31,5 @@ class RecipesTypeConverter {
         val listType = object : TypeToken<Result>() {}.type
         return gson.fromJson(data, listType)
     }
+
 }
